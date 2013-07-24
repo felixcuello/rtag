@@ -1,0 +1,4 @@
+DIR=`pwd`
+
+rtag.rb "$DIR"
+
