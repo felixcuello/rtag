@@ -112,6 +112,7 @@ module RTag
       nombre.gsub! /\(.*?version.*?\)/i,''    # I don't like comments on the songs :-)
       nombre.gsub! /\(.*?remaster.*?\)/i,''   # I don't like comments on the songs :-)
       nombre.gsub! /\s*$/,''                  # Trailing spaces
+      nombre.encode! "UTF-8"                  # Encode filenames in utf8 for standard reasons
       @Nombre = nombre
       @Numero = numero
     end
