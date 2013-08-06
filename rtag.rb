@@ -170,6 +170,7 @@ module RTag
     def setArtist newArtist
       newArtist.gsub! /&amp;/, '&'
       @Artist = newArtist
+      @Artist.encode "UTF-8"
     end
     
     def getArtist
@@ -178,6 +179,7 @@ module RTag
     
     def setTitle newTitle
       @Title = newTitle
+      @Title.encode "UTF-8"
     end
     
     def getTitle
