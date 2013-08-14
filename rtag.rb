@@ -1,4 +1,4 @@
-#!/home/felix/.rvm/rubies/ruby-1.9.3-p194/bin/ruby
+#!/usr/bin/env ruby
 
 require 'httpclient'
 require 'id3lib'
