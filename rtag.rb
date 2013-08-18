@@ -112,7 +112,7 @@ module RTag
       nombre.gsub! /\(.*?version.*?\)/i,''    # I don't like comments on the songs :-)
       nombre.gsub! /\(.*?remaster.*?\)/i,''   # I don't like comments on the songs :-)
       nombre.gsub! /\s*$/,''                  # Trailing spaces
-      nombre.encode! "UTF-8"                  # Encode filenames in utf8 for standard reasons
+      nombre.encode! "ISO-8859-1"             # Encode filenames in utf8 for standard reasons
       @Nombre = nombre
       @Numero = numero
     end
@@ -478,17 +478,8 @@ module RTag
   class RTag
     ##  Perform pre-searches trying to match disc / mp3Directory
     ## ---------------------------------------------------------------------
-    def initialize directorio, patron
-      if not patron
-        partes = directorio.split '/'
-        patron = partes[partes.count-2] + " " + partes[partes.count-1]
-        patron.gsub! /\(.*?\)/, ''
-        patron.downcase!
-      end
-      puts "Dir  : " + directorio
-      puts "Pat  : " + patron
-
-      @directorio = directorio
+    def initialize patron
+      @directorio = '.'
       @mp3Dir     = Mp3Dir.new @directorio
       @aws        = AmazonWS.new @mp3Dir
       @discFound  = @aws.search patron
@@ -544,15 +535,9 @@ module RTag
   end
 end # End of module RTag
 
-tag = RTag::RTag.new ARGV[0],ARGV[1]
-print "Done!" if tag.worked?
-
-
-exit 0
-
-tagger = DirectoryTagger.new
-files = tagger.TagWithDisc ARGV[1], "pepe"
-for mp3 in files
-  puts mp3
+tag = RTag::RTag.new ARGV[0]
+if tag.worked?
+  puts "Disc has been correctly tagged!"
+else
+  puts"**NO TAG FOUND**  :-("
 end
-
