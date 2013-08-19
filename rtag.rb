@@ -479,7 +479,11 @@ module RTag
     ##  Perform pre-searches trying to match disc / mp3Directory
     ## ---------------------------------------------------------------------
     def initialize patron
-      @directorio = '.'
+      @directorio = Dir.pwd
+      patronAlt  = @directorio.split /\//
+      patronAlt  = patronAlt[patronAlt.size-1]
+      patron     = patron || patronAlt
+
       @mp3Dir     = Mp3Dir.new @directorio
       @aws        = AmazonWS.new @mp3Dir
       @discFound  = @aws.search patron
