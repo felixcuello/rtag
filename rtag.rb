@@ -5,6 +5,8 @@ require 'id3lib'
 
 module RTag
 
+  rtagVersion = 'rtag 1.0.0'
+
   ##################################################################
   ##  Directory Tagger
   ##################################################################
@@ -513,7 +515,7 @@ module RTag
         tag.track     = i+1
         tag.composer  = @discFound.getArtist
         tag.album     = @discFound.getTitle
-        tag.comment   = 'rtag v0.7'
+        tag.comment   = rtagVersion
 
         cover = {
           :id          => :APIC,
