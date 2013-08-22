@@ -5,8 +5,6 @@ require 'id3lib'
 
 module RTag
 
-  rtagVersion = 'rtag 1.0.0'
-
   ##################################################################
   ##  Directory Tagger
   ##################################################################
@@ -282,13 +280,21 @@ module RTag
         return Disc.new
       end
       
-      puts "Searching [#{searchUntilPage} pages to go]..."
+      puts "Searching Amazon.com..."
       query = string2url query
-      amazonURL = "http://www.amazon.com/s/ref=nb_sb_noss_2?url=search-alias%3Daps&field-keywords=" + query
 
+      amazonURL = "http://www.amazon.com/s/ref=nb_sb_noss_2?url=search-alias%3Daps&field-keywords=" + query
       content   = getWebContent amazonURL
-      
-      return getDiscFromWebSearch content, searchUntilPage, includeTrackInfo
+      disc      = getDiscFromWebSearch content, searchUntilPage, includeTrackInfo
+
+      if disc.getTitle.empty?
+        puts "Searching Amazon.de..."
+        amazonURL = "http://www.amazon.de/s/ref=nb_sb_noss_2?url=search-alias%3Daps&field-keywords=" + query
+        content   = getWebContent amazonURL
+        disc      = getDiscFromWebSearch content, searchUntilPage, includeTrackInfo
+      end
+
+      return disc
     end
     
     
@@ -314,6 +320,8 @@ module RTag
         
         url = titulo = artista = ""
 
+        ##  Amazon.com
+        ## ----------------------------------------
         if /<div class="productTitle">\s*<a href="(.*?)">\s*(.*?)\s*<\/a>\s*<span class="ptBrand">by\s*(.+?)</i.match linea
           url     = trim $1
           titulo  = trim $2
@@ -325,6 +333,21 @@ module RTag
           titulo  = trim $2
           artista = trim $3          
         end
+
+        ##  Amazon.de
+        ## ----------------------------------------
+        if /<div class="productTitle">\s*<a href="(.*?)">\s*(.*?)\s*<\/a>\s*<span class="ptBrand">von\s*(.+?)</i.match linea
+          url     = trim $1
+          titulo  = trim $2
+          artista = trim $3          
+        end
+
+        if /<div class="productTitle">\s*<a href="(.*?)">\s*(.*?)\s*<\/a>\s*<span class="ptBrand">von\s*<a href=".*?">(.*?)<\/a><\/span>(.+)/i.match linea
+          url     = trim $1
+          titulo  = trim $2
+          artista = trim $3          
+        end
+
 
         if not titulo.empty? and not url.empty? and not artista.empty?
           disco = Disc.new
@@ -473,7 +496,7 @@ module RTag
         end        
       end
 
-      sleep 1 # Just 1 second delay, this is to hide a little bit the scrapping
+      sleep 1 # Just 1 second delay, this is to hide a little bit the scraping
     end
   end
   
@@ -515,7 +538,7 @@ module RTag
         tag.track     = i+1
         tag.composer  = @discFound.getArtist
         tag.album     = @discFound.getTitle
-        tag.comment   = rtagVersion
+        tag.comment   = '1.0.0'
 
         cover = {
           :id          => :APIC,
