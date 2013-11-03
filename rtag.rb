@@ -348,7 +348,6 @@ module RTag
           artista = trim $3          
         end
 
-
         if not titulo.empty? and not url.empty? and not artista.empty?
           disco = Disc.new
           if /([0-9]+)\)/.match $4
@@ -493,7 +492,11 @@ module RTag
         ## -------------------------------------------------------------------
         if /original release date:.+?([0-9]{4,}).*?/i.match linea
           disco.setReleaseYear $1
-        end        
+        end
+        
+        if /\([a-z]+ [0-9]+, ([0-9]+)\)/i.match linea
+          disco.setYear $1
+        end
       end
 
       sleep 1 # Just 1 second delay, this is to hide a little bit the scraping
@@ -538,7 +541,7 @@ module RTag
         tag.track     = i+1
         tag.composer  = @discFound.getArtist
         tag.album     = @discFound.getTitle
-        tag.comment   = '1.0.0'
+        tag.comment   = '1.0.1'
 
         cover = {
           :id          => :APIC,
