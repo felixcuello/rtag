@@ -14,7 +14,7 @@ module RTag
       @MP3Files = []
       dir = Dir.new directorio
       for archivo in dir.each.sort
-        if /[0-9]+\s*[\.\-]?\s*(.+?).mp3$/i.match archivo
+        if /[a-z0-9]+?\s*[\.\-]?\s*(.+?).mp3$/i.match archivo
           @Files.push $1
           @MP3Files.push archivo
         end
