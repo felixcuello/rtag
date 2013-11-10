@@ -395,6 +395,10 @@ module RTag
       puts "URL: " + disco.getUrl
       html = getWebContent disco.getUrl
 
+      if File.exist? 'folder.jpg'
+        puts "folder.jpg found, this image will be used!"
+      end
+
       for linea in html.split /\n/
         if /<a href="(.+?)">See all ([0-9]+) tracks on this disc<\/a>/.match linea
           puts "Need to get all " + $2.to_s + " tracks!"
@@ -415,9 +419,11 @@ module RTag
           puts "Large image, found!"
           disco.setImageUrl $1
           img = getWebContent disco.getImageUrl
-          folderjpg = File.open "folder.jpg","w"
-          folderjpg.write img
-          folderjpg.close
+          unless File.exist? 'folder.jpg'    # Let the user put its own folder.jpg
+            folderjpg = File.open "folder.jpg","w"
+            folderjpg.write img
+            folderjpg.close
+          end
           @ImagePriority = 0
         end
 
@@ -425,9 +431,11 @@ module RTag
           puts "Hi Res image, found!"
           disco.setImageUrl $1
           img = getWebContent disco.getImageUrl
-          folderjpg = File.open "folder.jpg","w"
-          folderjpg.write img
-          folderjpg.close
+          unless File.exist? 'folder.jpg'    # Let the user put its own folder.jpg
+            folderjpg = File.open "folder.jpg","w"
+            folderjpg.write img
+            folderjpg.close
+          end
           @ImagePriority = 1
         end
 
@@ -435,9 +443,11 @@ module RTag
           puts "Original image Found!"
           disco.setImageUrl $1
           img = getWebContent disco.getImageUrl
-          folderjpg = File.open "folder.jpg", "w"
-          folderjpg.write img
-          folderjpg.close
+          unless File.exist? 'folder.jpg'    # Let the user put its own folder.jpg
+            folderjpg = File.open "folder.jpg", "w"
+            folderjpg.write img
+            folderjpg.close
+          end
           @ImagePriority = 2
         end
 
