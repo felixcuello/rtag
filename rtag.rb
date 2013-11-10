@@ -106,6 +106,8 @@ module RTag
   class Track
     def initialize numero, nombre
       nombre.gsub! /\?/,''                    # Question marks are not allowed on most systems
+      nombre.gsub! '*','#'                    # Wildcard is forbidden in Windows systems, so it is chaned by the harmless #
+      nombre.gsub! '"', "'"                   # " is not supported in Windows systems either, sorry ;-)
       nombre.gsub! /:/,''                     # Colon is not shown correctly on my Mac, sorry :-)
       nombre.gsub! /&amp;/,'&'                # Just &
       nombre.gsub! /&quot;/,'"'               # Just "
@@ -551,7 +553,7 @@ module RTag
         tag.track     = i+1
         tag.composer  = @discFound.getArtist
         tag.album     = @discFound.getTitle
-        tag.comment   = '1.0.1'
+        tag.comment   = '1.0.3'
 
         cover = {
           :id          => :APIC,
@@ -567,6 +569,10 @@ module RTag
 
         name = track.getName
         name.gsub! /\//, ''
+        
+        name.sub! '*','#'
+        name.sub! '?',''
+
         targetFile = @directorio + "/" + trackNumber.to_s + ". " + name + ".mp3"
 
         File.rename mp3File, targetFile
