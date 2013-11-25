@@ -14,7 +14,7 @@ module RTag
       @MP3Files = []
       dir = Dir.new directorio
       for archivo in dir.each.sort
-        if /[a-z0-9]+?\s*[\.\-]?\s*(.+?).mp3$/i.match archivo
+        if /[a-z0-9]*?\s*[\.\-]?\s*(.+?).mp3$/i.match archivo
           @Files.push $1
           @MP3Files.push archivo
         end
@@ -115,6 +115,10 @@ module RTag
     def self.this! string
       string = Sanitize.this string
     end
+
+    def self.titleize string
+      return string.gsub(/(\w+)/) {|s| s.capitalize}
+    end
   end
 
   ##################################################################
@@ -129,7 +133,7 @@ module RTag
       nombre.gsub! /\(.*?version.*?\)/i,''    # I don't like comments on the songs :-)
       nombre.gsub! /\(.*?remaster.*?\)/i,''   # I don't like comments on the songs :-)
       Sanitize.this! nombre
-      @Nombre = nombre
+      @Nombre = Sanitize.titleize nombre
       @Numero = numero
     end
 
