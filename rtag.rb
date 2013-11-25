@@ -98,7 +98,24 @@ module RTag
     end
 
   end
-    
+
+  ##################################################################
+  ##  String Sanitizer
+  ##################################################################  
+  class Sanitize
+    def self.this string
+      string.gsub! /&amp;/, '&'               # Just &
+      string.gsub! /&quot;/, '"'              # Just "
+      string.gsub! /^\s*/, ''                 # Heading spaces
+      string.gsub! /\s*$/, ''                 # Trailing spaces
+      string.gsub! /&#39;/, "'"               # 
+      string.encode! "ISO-8859-1"             # Encode filenames in utf8 for standard reasons
+    end
+
+    def self.this! string
+      string = Sanitize.this string
+    end
+  end
 
   ##################################################################
   ##  Track Container
@@ -109,12 +126,9 @@ module RTag
       nombre.gsub! '*','#'                    # Wildcard is forbidden in Windows systems, so it is chaned by the harmless #
       nombre.gsub! '"', "'"                   # " is not supported in Windows systems either, sorry ;-)
       nombre.gsub! /:/,''                     # Colon is not shown correctly on my Mac, sorry :-)
-      nombre.gsub! /&amp;/,'&'                # Just &
-      nombre.gsub! /&quot;/,'"'               # Just "
       nombre.gsub! /\(.*?version.*?\)/i,''    # I don't like comments on the songs :-)
       nombre.gsub! /\(.*?remaster.*?\)/i,''   # I don't like comments on the songs :-)
-      nombre.gsub! /\s*$/,''                  # Trailing spaces
-      nombre.encode! "ISO-8859-1"             # Encode filenames in utf8 for standard reasons
+      Sanitize.this! nombre
       @Nombre = nombre
       @Numero = numero
     end
@@ -142,6 +156,20 @@ module RTag
       resetTracks!
       @mp3Url = ''
       @storedMp3Url = false
+
+      ##  This is to add some extra information to the disc
+      if File.exist? 'info.txt'
+        puts "info.txt found, we'll add the extra info to your disc"
+        File.open('info.txt','r').each_line do |linea|
+          if /year:\s*([0-9]+)/.match linea
+            @customYear = $1
+          end
+          if /album:\s*(.+)$/i.match linea
+            @customAlbum = $1
+          end
+        end
+      end
+
     end
 
     def hasMp3Url?
@@ -170,9 +198,7 @@ module RTag
     end
     
     def setArtist newArtist
-      newArtist.gsub! /&amp;/, '&'
-      @Artist = newArtist
-      @Artist.encode "UTF-8"
+      @Artist = Sanitize.this newArtist
     end
     
     def getArtist
@@ -181,7 +207,11 @@ module RTag
     
     def setTitle newTitle
       @Title = newTitle
-      @Title.encode "UTF-8"
+      if @customAlbum
+        puts "[!!] Custom title found!, adding to the title"
+        @Title = @Title + ' ' + @customAlbum
+      end
+      Sanitize.this! @Title
     end
     
     def getTitle
@@ -201,7 +231,12 @@ module RTag
     end
     
     def setYear newYear
-      @Year = newYear
+      if @customYear
+        @Year = @customYear
+        puts "[!!] Year was set in the info.txt file"
+      else
+        @Year = newYear
+      end
     end
     
     def getYear
@@ -553,7 +588,7 @@ module RTag
         tag.track     = i+1
         tag.composer  = @discFound.getArtist
         tag.album     = @discFound.getTitle
-        tag.comment   = '1.0.3'
+        tag.comment   = '1.0.4'
 
         cover = {
           :id          => :APIC,
