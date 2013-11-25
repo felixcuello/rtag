@@ -553,7 +553,7 @@ module RTag
   class RTag
     ##  Perform pre-searches trying to match disc / mp3Directory
     ## ---------------------------------------------------------------------
-    def initialize patron
+    def initialize patron, album_title, release_year
       @directorio = Dir.pwd
       patronAlt  = @directorio.split /\//
       patronAlt  = patronAlt[patronAlt.size-1]
@@ -562,6 +562,9 @@ module RTag
       @mp3Dir     = Mp3Dir.new @directorio
       @aws        = AmazonWS.new @mp3Dir
       @discFound  = @aws.search patron
+
+      @album_title_extra = album_title
+      @release_year      = release_year
     end
 
     ##  Work on the directory, tag every mp3 and download the cover
@@ -584,11 +587,11 @@ module RTag
 
         tag.title = track.getName
         tag.performer = @discFound.getArtist
-        tag.year      = @discFound.getYear
+        tag.year      = @release_year.empty? ? @discFound.getYear : @release_year
         tag.track     = i+1
         tag.composer  = @discFound.getArtist
-        tag.album     = @discFound.getTitle
-        tag.comment   = '1.0.4'
+        tag.album     = @discFound.getTitle + (@album_title_extra.empty? ? '' : @album_title_extra)
+        tag.comment   = '1.0.5'
 
         cover = {
           :id          => :APIC,
@@ -618,7 +621,32 @@ module RTag
   end
 end # End of module RTag
 
-tag = RTag::RTag.new ARGV[0]
+year = ''
+title = ''
+busqueda = ' '
+i = 0
+while i < ARGV.size
+
+  if /-y/i.match ARGV[i]
+    i += 1
+    year = ARGV[i]
+    i += 1
+    next
+  end
+
+  if /-t/i.match ARGV[i]
+    i += 1
+    title = ARGV[i]
+    i += 1
+    next
+  end
+
+  busqueda += ARGV[i] + " "
+  i += 1
+end
+
+tag = RTag::RTag.new busqueda, title, year
+
 if tag.worked?
   puts "Disc has been correctly tagged!"
 else
