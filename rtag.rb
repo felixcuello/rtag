@@ -595,7 +595,7 @@ module RTag
         tag.track     = i+1
         tag.composer  = @discFound.getArtist
         tag.album     = @discFound.getTitle + (@album_title_extra.empty? ? '' : @album_title_extra)
-        tag.comment   = '1.0.5'
+        tag.comment   = '1.0.6'
 
         cover = {
           :id          => :APIC,
@@ -640,7 +640,7 @@ while i < ARGV.size
 
   if /-t/i.match ARGV[i]
     i += 1
-    title = ARGV[i]
+    title = title + " " + ARGV[i]
     i += 1
     next
   end
