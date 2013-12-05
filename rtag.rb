@@ -226,7 +226,7 @@ module RTag
       if newYear.nil? or @Year.nil?
         @ReleaseYear = newYear
       else
-        @ReleaseYear = newYear < @Year ? newYear : @Year
+        @ReleaseYear = newYear.to_i < @Year.to_i ? newYear : @Year
       end
     end
     
@@ -307,6 +307,30 @@ module RTag
     end
   end
   
+
+  ##################################################################
+  ##  Wikipedia Class
+  ##################################################################
+	class WikipediaWS < WebService
+		def initialize discName
+			super
+			title = discName.gsub /\s/,'_'
+			puts "Querying wikipedia..."
+			url  = "http://en.wikipedia.org/wiki/" + title
+			response = @webClient.get url, :follow_redirect => true
+			@releaseYear = 0
+			for linea in response.content.split /\n/
+				if /<td class="published">.+?([0-9]+)\s*</.match linea
+					@releaseYear = $1
+				end
+			end
+		end
+
+		def getReleaseYear
+			return @releaseYear || 0
+		end
+	end
+
   
   
   ##################################################################
@@ -334,6 +358,11 @@ module RTag
         content   = getWebContent amazonURL
         disc      = getDiscFromWebSearch content, searchUntilPage, includeTrackInfo
       end
+
+			wiki = WikipediaWS.new disc.getTitle
+			if wiki.getReleaseYear.to_i > 0
+				disc.setReleaseYear wiki.getReleaseYear
+			end
 
       return disc
     end
@@ -363,10 +392,11 @@ module RTag
 
         ##  Amazon.com
         ## ----------------------------------------
-        if /<div class="productTitle">\s*<a href="(.*?)">\s*(.*?)\s*<\/a>\s*<span class="ptBrand">by\s*(.+?)</i.match linea
+        if /<div class="productTitle">\s*<a href="(.*?)">\s*(.*?)\s*<\/a>\s*<span class="ptBrand">by\s*.*?>?(.+?)</i.match linea
           url     = trim $1
           titulo  = trim $2
           artista = trim $3          
+					artista.gsub! /<.+>/,''
         end
 
         if /<div class="productTitle">\s*<a href="(.*?)">\s*(.*?)\s*<\/a>\s*<span class="ptBrand">by\s*<a href=".*?">(.*?)<\/a><\/span>(.+)/i.match linea
@@ -595,7 +625,7 @@ module RTag
         tag.track     = i+1
         tag.composer  = @discFound.getArtist
         tag.album     = @discFound.getTitle + (@album_title_extra.empty? ? '' : @album_title_extra)
-        tag.comment   = '1.0.6'
+        tag.comment   = '1.1.0'
 
         cover = {
           :id          => :APIC,
