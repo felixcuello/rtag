@@ -106,9 +106,10 @@ module RTag
     def self.this string
       string.gsub! /&amp;/, '&'               # Just &
       string.gsub! /&quot;/, '"'              # Just "
+			string.gsub! /&ouml;/, 'o'							# Thanks Bjork for your beautiful " sign above the o
       string.gsub! /^\s*/, ''                 # Heading spaces
       string.gsub! /\s*$/, ''                 # Trailing spaces
-      string.gsub! /&#39;/, "'"               # 
+      string.gsub! /&#39;/, "'"               # The '
       string.encode! "ISO-8859-1"             # Encode filenames in utf8 for standard reasons
     end
 
@@ -565,7 +566,8 @@ module RTag
 
         ##  Track Type 5
         ## -------------------------------------------------------------------
-        elsif /([0-9]+). <a href=".+?">(.+?)<\/a>/.match linea
+        elsif !/Read more about shipping and returns/i.match linea and
+							/([0-9]+). <a href=".+?">(.+?)<\/a>/.match linea
           disco.addTrack $1, $2
         end
 
@@ -625,7 +627,7 @@ module RTag
         tag.track     = i+1
         tag.composer  = @discFound.getArtist
         tag.album     = @discFound.getTitle + (@album_title_extra.empty? ? '' : @album_title_extra)
-        tag.comment   = '1.1.0'
+        tag.comment   = '1.1.1'
 
         cover = {
           :id          => :APIC,
