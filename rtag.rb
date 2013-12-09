@@ -564,11 +564,12 @@ module RTag
         elsif /<td class="songTitle">([0-9]+)\. <.+?>(.+?)<\/a>/.match linea
           disco.addTrack $1, $2
 
-        ##  Track Type 5
+        ##  Track Type 5 - removed until further notice
+				##  This is being too prone error
         ## -------------------------------------------------------------------
-        elsif !/Read more about shipping and returns/i.match linea and
-							/([0-9]+). <a href=".+?">(.+?)<\/a>/.match linea
-          disco.addTrack $1, $2
+        #elsif !/Read more about shipping and returns/i.match linea and
+				#			/([0-9]+). <a href=".+?">(.+?)<\/a>/.match linea
+        #  disco.addTrack $1, $2
         end
 
         ##  Original release date
@@ -627,7 +628,7 @@ module RTag
         tag.track     = i+1
         tag.composer  = @discFound.getArtist
         tag.album     = @discFound.getTitle + (@album_title_extra.empty? ? '' : @album_title_extra)
-        tag.comment   = 'Tagged using rtag v1.1.2'
+        tag.comment   = 'Tagged using rtag v1.1.3'
 
         cover = {
           :id          => :APIC,
