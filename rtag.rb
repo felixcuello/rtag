@@ -471,7 +471,11 @@ module RTag
         puts "folder.jpg found, this image will be used!"
       end
 
-      for linea in html.split /\n/
+      lines = html.split /\n/
+
+      for i in 0..lines.size()
+        linea = lines[i]
+
         if /<a href="(.+?)">See all ([0-9]+) tracks on this disc<\/a>/.match linea
           puts "Need to get all " + $2.to_s + " tracks!"
           disco.resetTracks!
@@ -527,26 +531,27 @@ module RTag
           puts "Customer Image Found!"
           @ImagePriority = 3
           disco.setImageUrl $1
-#          img = getWebContent disco.getImageUrl
-#          folderjpg = File.open "folder.jpg", "w"
-#          folderjpg.write img
-#          folderjpg.close
         end
         
 
         ##  Track Type 1
         ## -------------------------------------------------------------------
-        trackType = 0
-        for trLine in linea.split '<tr>'
-          if /<td class="titleCol">.*?\s*([0-9]+)\. <a href="[^"]+">([^<]+)<\/a>/.match trLine
-            disco.addTrack $1,$2
-            trackType = 1
-          end
-        end
-
-        if trackType == 1
+        if !linea.nil?   # I've added this statement, since it was not checked and it is failing :-)
+          ##  2014
+          ##  I don't remember why I used a "trackType" parser state :-(
+          ##  I leave it there anyway
           trackType = 0
-          next
+          for trLine in linea.split '<tr>'
+            if /<td class="titleCol">.*?\s*([0-9]+)\. <a href="[^"]+">([^<]+)<\/a>/.match trLine
+              disco.addTrack $1,$2
+              trackType = 1
+            end
+          end
+          
+          if trackType == 1
+            trackType = 0
+            next
+          end
         end
 
         ##  Track Type 2
@@ -564,12 +569,26 @@ module RTag
         elsif /<td class="songTitle">([0-9]+)\. <.+?>(.+?)<\/a>/.match linea
           disco.addTrack $1, $2
 
-        ##  Track Type 5 - removed until further notice
-				##  This is being too prone error
-        ## -------------------------------------------------------------------
-        #elsif !/Read more about shipping and returns/i.match linea and
-				#			/([0-9]+). <a href=".+?">(.+?)<\/a>/.match linea
-        #  disco.addTrack $1, $2
+        elsif /<span class="a-size-base a-color-tertiary a-text-bold">/i.match linea
+          ## -------
+          ##  This type of track it is a bit more difficult to parse, since it is NOT just a single
+          ##  line a "multi-line parser" had to be written here to match a multi-line track information
+          ## -------
+          if /(Song Title|Time|Popularity)/i.match lines[i+1]
+            next
+          end
+          
+          trackNumber = lines[i+1]
+          trackName   = ''
+          for j in i..lines.size()
+            if /<a class="a-size-base a-link-normal a-color-base a-text-bold" title=".+?" href=".+?">/i.match lines[j]
+              trackName = lines[j+1]
+              i = j
+              trackType = 1
+              break
+            end
+          end
+          disco.addTrack trackNumber, trackName
         end
 
         ##  Original release date
