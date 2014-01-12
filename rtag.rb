@@ -647,7 +647,7 @@ module RTag
         tag.track     = i+1
         tag.composer  = @discFound.getArtist
         tag.album     = @discFound.getTitle + (@album_title_extra.empty? ? '' : @album_title_extra)
-        tag.comment   = 'Tagged using rtag v1.1.3'
+        tag.comment   = 'Tagged using rtag v1.2.0'
 
         cover = {
           :id          => :APIC,
