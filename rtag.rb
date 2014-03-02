@@ -131,8 +131,9 @@ module RTag
       nombre.gsub! '*','#'                    # Wildcard is forbidden in Windows systems, so it is chaned by the harmless #
       nombre.gsub! '"', "'"                   # " is not supported in Windows systems either, sorry ;-)
       nombre.gsub! /:/,''                     # Colon is not shown correctly on my Mac, sorry :-)
-      nombre.gsub! /\(.*?version.*?\)/i,''    # I don't like comments on the songs :-)
-      nombre.gsub! /\(.*?remaster.*?\)/i,''   # I don't like comments on the songs :-)
+      nombre.gsub! /\(.*?version.*?\)\)?/i,'' # I don't like comments on the songs :-)     "Pharrell, in my mind album" had "))", that's why I put a \)?
+      nombre.gsub! /\(.*?remaster.*?\)\)?/i,''# I don't like comments on the songs :-)     "Pharrell, in my mind album" had "))", that's why I put a \)?
+      nombre.gsub! /\[.*?\]/i,''              # I don't like comments on the songs!
       Sanitize.this! nombre
       @Nombre = Sanitize.titleize nombre
       @Numero = numero
@@ -647,7 +648,7 @@ module RTag
         tag.track     = i+1
         tag.composer  = @discFound.getArtist
         tag.album     = @discFound.getTitle + (@album_title_extra.empty? ? '' : @album_title_extra)
-        tag.comment   = 'Tagged using rtag v1.2.0'
+        tag.comment   = 'Tagged using rtag v1.3.0'
 
         cover = {
           :id          => :APIC,
